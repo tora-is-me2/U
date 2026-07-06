@@ -1,0 +1,121 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- ==============================================
+-- NOME DO JOGO
+-- ==============================================
+local NOME_JOGO = "Escape Backrooms For Brainrots"
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local ToggleBtn = Instance.new("TextButton")
+local SpawBtn = Instance.new("TextButton")
+local Footer = Instance.new("TextLabel")
+
+-- ==============================================
+-- COORDENADA SPAW
+-- ==============================================
+local SpawCFrame = CFrame.new(-237,3,1)
+
+local YPos = 42
+local menuAberto = true
+
+-- CONFIGURAÇÃO DO MENU
+ScreenGui.Name = "MainMenuGui"
+ScreenGui.Parent = PlayerGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.ResetOnSpawn = false
+
+-- FUNDO BEM ESCURO
+MainFrame.Size = UDim2.new(0, 250, 0, 140)
+MainFrame.Position = UDim2.new(0.02, 0, 0.05, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
+MainFrame.BackgroundTransparency = 0
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
+
+-- TITULO
+Title.Size = UDim2.new(1, -45, 0, 28)
+Title.Position = UDim2.new(0, 10, 0, 6)
+Title.BackgroundTransparency = 1
+Title.Text = NOME_JOGO
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextScaled = true
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = MainFrame
+
+-- BOTÃO ABRIR/FECHAR
+ToggleBtn.Size = UDim2.new(0, 30, 0, 24)
+ToggleBtn.Position = UDim2.new(1, -38, 0, 7)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+ToggleBtn.BorderColor3 = Color3.fromRGB(70, 70, 70)
+ToggleBtn.Text = "▼"
+ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleBtn.TextScaled = true
+ToggleBtn.Font = Enum.Font.GothamBold
+ToggleBtn.Parent = MainFrame
+
+-- ==============================================
+-- BOTÃO SPAW - MAIS CLARO QUE O FUNDO
+-- ==============================================
+SpawBtn.Size = UDim2.new(1, -15, 0, 38)
+SpawBtn.Position = UDim2.new(0, 8, 0, YPos + 6)
+SpawBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+SpawBtn.BorderSizePixel = 0
+SpawBtn.Text = "Go to spaw"
+SpawBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpawBtn.TextScaled = true
+SpawBtn.Font = Enum.Font.GothamBold
+SpawBtn.TextXAlignment = Enum.TextXAlignment.Center
+SpawBtn.Parent = MainFrame
+
+SpawBtn.MouseButton1Click:Connect(function()
+    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+    hrp.CFrame = SpawCFrame
+    ReplicatedStorage.SpawnEvent:FireServer()
+end)
+
+-- RODAPÉ
+Footer.Size = UDim2.new(1, 0, 0, 20)
+Footer.Position = UDim2.new(0, 10, 0, YPos + 52)
+Footer.BackgroundTransparency = 1
+Footer.Text = "by Luan script"
+Footer.TextColor3 = Color3.fromRGB(170, 170, 170)
+Footer.TextScaled = true
+Footer.Font = Enum.Font.Gotham
+Footer.TextXAlignment = Enum.TextXAlignment.Left
+Footer.Parent = MainFrame
+
+-- ABRIR / FECHAR
+local function AtualizarMenu()
+    MainFrame.Size = menuAberto and UDim2.new(0, 250, 0, 140) or UDim2.new(0, 250, 0, 40)
+    ToggleBtn.Text = menuAberto and "▼" or "▶"
+    
+    for _, v in pairs(MainFrame:GetChildren()) do
+        local visivel = v:IsA("TextButton") or v == Footer or v == SpawBtn
+        v.Visible = menuAberto and visivel or (v == Title or v == ToggleBtn)
+    end
+end
+
+ToggleBtn.MouseButton1Click:Connect(function()
+    menuAberto = not menuAberto
+    AtualizarMenu()
+end)
+
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.Insert then
+        menuAberto = not menuAberto
+        AtualizarMenu()
+    end
+end)
+
+AtualizarMenu()
+print("✅ PRONTO! Apenas botão spaw, fundo escuro e spaw mais claro.")
