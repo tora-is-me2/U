@@ -1,0 +1,179 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- ==============================================
+-- NOME DO JOGO
+-- ==============================================
+local NOME_JOGO = "🐒 Escape Zoo For Brainrots"
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local ToggleBtn = Instance.new("TextButton")
+local Check1 = Instance.new("Frame")
+local Check2 = Instance.new("Frame")
+local SpawBtn = Instance.new("TextButton")
+local Footer = Instance.new("TextLabel")
+
+-- ==============================================
+-- COORDENADAS EXATAS
+-- ==============================================
+local Options = {
+    ["Lionel,s Cage"] = CFrame.new(322,-5,41),
+    ["BLACK WINDOWS "] = CFrame.new(324,-5,-43),
+    ["spaw"] = CFrame.new(9,-5,3)
+}
+
+local CheckFrames = {Check1, Check}
+local OptionNames = {"Lionel,s Cage", "BLACK WINDOWS "}
+local YPos = 42
+local menuAberto = true
+
+-- ==============================================
+-- CONFIGURAÇÕES DO MENU
+-- ==============================================
+local LARGURA_MENU = 250
+local ALTURA_POR_ITEM = 46
+local ESPACO_BOTAO_SPAW = 50
+local ESPACO_RODAPE = 24
+local ALTURA_MINIMA = 200
+
+-- Cálculo automático da altura
+local CalcularAlturaTotal = function()
+    local qtdItens = #OptionNames
+    local alturaCalculada = YPos + (qtdItens * ALTURA_POR_ITEM) + ESPACO_BOTAO_SPAW + ESPACO_RODAPE + 20
+    return math.max(alturaCalculada, ALTURA_MINIMA)
+end
+
+-- Montagem do menu
+ScreenGui.Name = "MainMenuGui"
+ScreenGui.Parent = PlayerGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.ResetOnSpawn = false
+
+MainFrame.Size = UDim2.new(0, LARGURA_MENU, 0, CalcularAlturaTotal())
+MainFrame.Position = UDim2.new(0.02, 0, 0.05, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.BackgroundTransparency = 0.1
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
+
+-- Título
+Title.Size = UDim2.new(1, -45, 0, 30)
+Title.Position = UDim2.new(0, 10, 0, 7)
+Title.BackgroundTransparency = 1
+Title.Text = NOME_JOGO
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextScaled = true
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = MainFrame
+
+-- Botão abrir/fechar
+ToggleBtn.Size = UDim2.new(0, 30, 0, 26)
+ToggleBtn.Position = UDim2.new(1, -36, 0, 7)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+ToggleBtn.BorderColor3 = Color3.fromRGB(80, 80, 80)
+ToggleBtn.Text = "▼"
+ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleBtn.TextScaled = true
+ToggleBtn.Font = Enum.Font.GothamBold
+ToggleBtn.Parent = MainFrame
+
+-- Cria opções — SEM QUADRADOS APARECENDO
+for i = 1, #OptionNames do
+    local opt = Instance.new("TextButton")
+    opt.Name = "Option_" .. OptionNames[i]
+    opt.Size = UDim2.new(1, -20, 0, 38)
+    opt.Position = UDim2.new(0, 10, 0, YPos)
+    opt.BackgroundTransparency = 1
+    opt.Text = OptionNames[i]
+    opt.TextColor3 = Color3.fromRGB(255, 255, 255)
+    opt.TextScaled = true
+    opt.Font = Enum.Font.GothamMedium
+    opt.TextXAlignment = Enum.TextXAlignment.Left
+    opt.Parent = MainFrame
+
+    -- Ação ao clicar
+    opt.MouseButton1Click:Connect(function()
+        local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+        
+        -- Volta todas brancas
+        for _, filho in pairs(MainFrame:GetChildren()) do
+            if filho:IsA("TextButton") and filho ~= ToggleBtn and filho ~= SpawBtn then
+                filho.TextColor3 = Color3.fromRGB(255, 255, 255)
+            end
+        end
+        -- Destaca azul
+        opt.TextColor3 = Color3.fromRGB(80, 150, 255)
+
+        hrp.CFrame = Options[OptionNames[i]]
+        ReplicatedStorage.SpawnEvent:FireServer()
+    end)
+
+    YPos += ALTURA_POR_ITEM
+end
+
+-- Botão voltar ao spawn
+SpawBtn.Size = UDim2.new(1, -15, 0, 38)
+SpawBtn.Position = UDim2.new(0, 8, 0, YPos + 8)
+SpawBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+SpawBtn.BorderSizePixel = 0
+SpawBtn.Text = "GO TO SPAW"
+SpawBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+SpawBtn.TextScaled = true
+SpawBtn.Font = Enum.Font.GothamBold
+SpawBtn.TextXAlignment = Enum.TextXAlignment.Center
+SpawBtn.Parent = MainFrame
+
+SpawBtn.MouseButton1Click:Connect(function()
+    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+    hrp.CFrame = Options["spaw"]
+    ReplicatedStorage.SpawnEvent:FireServer()
+end)
+
+-- Rodapé
+Footer.Size = UDim2.new(1, 0, 0, 22)
+Footer.Position = UDim2.new(0, 10, 0, YPos + 52)
+Footer.BackgroundTransparency = 1
+Footer.Text = "by Luan script"
+Footer.TextColor3 = Color3.fromRGB(200, 200, 200)
+Footer.TextScaled = true
+Footer.Font = Enum.Font.Gotham
+Footer.TextXAlignment = Enum.TextXAlignment.Left
+Footer.Parent = MainFrame
+
+-- Abrir / fechar menu
+local function AtualizarMenu()
+    local alturaTotal = CalcularAlturaTotal()
+    MainFrame.Size = menuAberto and UDim2.new(0, LARGURA_MENU, 0, alturaTotal) or UDim2.new(0, LARGURA_MENU, 0, 40)
+    ToggleBtn.Text = menuAberto and "▼" or "▶"
+    
+    for _, v in pairs(MainFrame:GetChildren()) do
+        local visivel = v:IsA("TextButton") or v == Footer
+        v.Visible = menuAberto and visivel or (v == Title or v == ToggleBtn)
+    end
+end
+
+ToggleBtn.MouseButton1Click:Connect(function()
+    menuAberto = not menuAberto
+    AtualizarMenu()
+end)
+
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.Insert then
+        menuAberto = not menuAberto
+        AtualizarMenu()
+    end
+end)
+
+AtualizarMenu()
+print("✅ Pronto! Código inicial igual pediu, sem quadrados visíveis.")
